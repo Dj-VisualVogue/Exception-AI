@@ -40,7 +40,39 @@ ExceptionAI is an operational exception resolution workbench built for enterpris
 
 ## 📐 Architecture & Domain Models
 
+```mermaid
+flowchart TD
+    subgraph UI ["User Interface Layer (React 19 + Tailwind CSS)"]
+        Dashboard["Executive Dashboard Metrics"]
+        Queue["Exception Queue (Filter / Search / Sort)"]
+        Detail["Detail Pane & Grounded Evidence Card"]
+        PolicyModal["Policy Configuration Modal (Live Sliders)"]
+    end
+
+    subgraph Service ["Core Business & Policy Engine Services"]
+        Analysis["AnalysisEngine\n(Variance %, Severity, Confidence Calculation)"]
+        Policy["ResolutionPolicyService\n(Authoritative Thresholds & Policy Enforcement)"]
+        Resolution["ResolutionService\n(State Mutation & Service Guard Verification)"]
+        AI["AIExplanationService\n(Grounded Explanation + Gemini LLM / Fallback)"]
+    end
+
+    subgraph Storage ["Persistence & Audit Trail"]
+        LocalStore["StorageService (localStorage)"]
+        Audit["AuditService (Immutable Event Stream)"]
+    end
+
+    Queue -->|Select Item| Detail
+    Detail -->|Trigger AI Explanation| AI
+    Detail -->|Execute Resolution| Resolution
+    PolicyModal -->|Update Thresholds| Policy
+    
+    Resolution -->|Validate Policy| Policy
+    Resolution -->|Persist State| LocalStore
+    Resolution -->|Log Action| Audit
+    Analysis -->|Calculate Metrics| Queue
 ```
+
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                       React 19 UI                           │
 │ (Header, Metrics, Exception Queue, Detail Pane, Policy Modal)│
